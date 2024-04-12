@@ -1,6 +1,5 @@
 import { useAuth } from "../context/UserContext";
 import "../css/Home.css";
-import { useNavigate } from "react-router-dom";
 function Home() {
   const { user } = useAuth();
   const currentDate = new Date();
@@ -25,10 +24,12 @@ function Home() {
       <section className="home__container">
         <h1 className="home__title">
           ¡Bienvenido {user?.user_name} {user?.user_middle_name}{" "}
-          {user?.user_last_name}!
+          {user?.user_last_name} {user?.user_last_second_name}!
         </h1>
 
-        <p className="home__subtitle">! Tu cumpleaños es en {daysUntilNextBirthday} días !</p>
+        <p className="home__subtitle">
+          ! Tu cumpleaños es en {daysUntilNextBirthday} días !
+        </p>
       </section>
     </section>
   );

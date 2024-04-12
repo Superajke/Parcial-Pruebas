@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
       checkLogin();
       return res;
     } catch (error) {
-      return error;
+      return error.response.data;
     }
   };
 
@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
       setUser(res.data);
       checkLogin();
-      return res.data;
+      return "Logeado Correctamente";
     } catch (error) {
       return error.response.data;
     }
@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
     } catch (error) {
       console.log(error);
-      return;
+      return ;
     }
   };
 

@@ -59,6 +59,30 @@ const Register = ({ showLoginForm }) => {
         });
         return;
       }
+      if (values[0].length > 20) {
+        toast.error("El nombre no puede tener más de 20 caracteres", {
+          style: toastStyle,
+        });
+        return;
+      }
+      if (values[1].length > 20) {
+        toast.error("El segundo nombre no puede tener más de 20 caracteres", {
+          style: toastStyle,
+        });
+        return;
+      }
+      if(values[2].length > 20) {
+        toast.error("El apellido no puede tener más de 20 caracteres", {
+          style: toastStyle,
+        });
+        return;
+      }
+      if(values[3].length > 20) {
+        toast.error("El segundo apellido no puede tener más de 20 caracteres", {
+          style: toastStyle,
+        });
+        return;
+      }
       if (!values[2]) {
         toast.error("Por favor ingresa tu Apellido", {
           style: toastStyle,
@@ -115,6 +139,12 @@ const Register = ({ showLoginForm }) => {
         isValid = false;
       }
     }
+    if (data.user_username.length < 8) {
+      toast.error("El nombre de usuario debe tener al menos 8 caracteres", {
+        style: toastStyle,
+      });
+      isValid = false;
+    }
     if (data.user_password.length < 8) {
       toast.error("La contraseña debe tener al menos 8 caracteres", {
         style: toastStyle,
@@ -135,11 +165,11 @@ const Register = ({ showLoginForm }) => {
       isValid = false;
     }
     delete data.user_password_confirm;
-    console.log(data);
+    data.user_phone = parseInt(data.user_phone);
     if (isValid) {
       const res = await signUp(data);
-      if (typeof res !== "object") {
-        toast.error(res, {
+      if (res.error) {
+        toast.error(res.error, {
           style: toastStyle,
         });
       }

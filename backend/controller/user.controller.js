@@ -14,7 +14,7 @@ export const getUsers = async (req, res) => {
     const [result] = await pool.query("SELECT * FROM users");
     res.json(result);
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -32,20 +32,22 @@ export const postUser = async (req, res) => {
     user_birth_date,
   } = req.body;
   const finalPass = await bcrypt.hash(user_password, SALT_ROUNDS);
-
+  console.log(req.body);
   try {
     const [user] = await pool.query(
-      "SELECT * FROM users WHERE user_email = ?",
-      [user_email]
+      "SELECT * FROM users WHERE user_email = ? OR user_username = ? OR user_phone = ? OR user_identification = ?",
+      [user_email, user_username, user_phone, user_identification]
     );
 
     if (user.length > 0) {
       if (user[0].user_email === user_email) {
-        return res.status(400).json({ message: "Correo en uso" });
+        return res.status(400).json({ error: "Correo en uso" });
       } else if (user[0].user_username === user_username) {
-        return res.status(400).json({ message: "Usuario en uso" });
+        return res.status(400).json({ error: "Usuario en uso" });
       } else if (user[0].user_identification === user_identification) {
-        return res.status(400).json({ message: "NIT en uso" });
+        return res.status(400).json({ error: "NIT en uso" });
+      } else if (user[0].user_phone === user_phone) {
+        return res.status(400).json({ error: "Teléfono en uso" });
       }
     }
 
@@ -72,7 +74,7 @@ export const postUser = async (req, res) => {
     res.json({ message: "Usuario creado" });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -86,14 +88,23 @@ export const updateUser = async (req, res) => {
     user_email,
     user_phone,
   } = req.body;
-  
+
   try {
     const [result] = await pool.query(
-      "SELECT * FROM users WHERE user_email = ?",
-      [user_email]
+      "SELECT * FROM users WHERE user_email = ? OR user_phone = ?",
+      [user_email, user_phone]
     );
     if (result.length === 0) {
-      return res.status(400).json({ message: "Usuario no encontrado" });
+      return res.status(400).json({ error: "Usuario no encontrado" });
+    } else {
+      if (user_email !== result[0].user_email && result[0].user_phone === user_phone) {
+        return res.status(400).json({ error: "Teléfono en uso" });
+      } else if (
+        user_email !== result[0].user_email &&
+        result[0].user_username === user_username
+      ) {
+        return res.status(400).json({ error: "Usuario en uso" });
+      }
     }
 
     await pool.query(
@@ -111,8 +122,7 @@ export const updateUser = async (req, res) => {
 
     res.json({ message: "Usuario actualizado" });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -125,7 +135,7 @@ export const deleteUser = async (req, res) => {
       [user_email]
     );
     if (result.length === 0) {
-      return res.status(400).json({ message: "Usuario no encontrado" });
+      return res.status(400).json({ error: "Usuario no encontrado" });
     }
 
     await pool.query("UPDATE users SET active = ? WHERE user_email = ? ", [
@@ -135,21 +145,20 @@ export const deleteUser = async (req, res) => {
 
     res.json({ message: "Usuario eliminado" });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
 export const LogIn = async (req, res) => {
   try {
-    const { user_email, user_password } = req.body;
+    const { user_username, user_password } = req.body;
     const [result] = await pool.query(
-      "select * from users where user_email = ?",
-      [user_email]
+      "select * from users where user_username = ?",
+      [user_username]
     );
 
     if (result.length === 0) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ error: "Usuario no encontrado" });
     }
     const isMatch = await bcrypt.compare(
       user_password,
@@ -157,13 +166,13 @@ export const LogIn = async (req, res) => {
     );
 
     if (!isMatch)
-      return res.status(400).json({ message: "Incorrect password" });
+      return res.status(400).json({ error: "Contraseña incorrecta" });
 
     const token = await CreateAccesToken({ id: result[0].user_id });
     res.cookie("token", token);
     res.json(result[0]);
   } catch (error) {
-    return res.status(404).json({ message: error.message });
+    return res.status(404).json({ error: error.message });
   }
 };
 
@@ -183,7 +192,7 @@ export const verifyToken = async (req, res) => {
       "select * from users where user_id = ?",
       [decoded.id]
     );
-    if (!userFound) return res.status(401).json({ message: "Unauthorized" });
+    if (!userFound) return res.status(401).json({ error: "Unauthorized" });
     return res.json({
       id: userFound[0].user_id,
       user_name: userFound[0].user_name,

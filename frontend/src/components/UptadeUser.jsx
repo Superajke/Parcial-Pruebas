@@ -47,11 +47,25 @@ function UpdateUser({ toggleUpdate }) {
       isValid = false;
       return;
     }
+    if(data.user_name.length>20){
+      toast.error("El nombre no puede tener más de 20 caracteres", {
+        style: toastStyle,
+      });
+      isValid = false;
+      return;
+    }
     if (!data.user_middle_name) {
       toast.error("Por favor ingresa tu Segundo Nombre", {
         style: toastStyle,
       });
       isValid = false;
+    }
+    if(data.user_middle_name.length>20){
+      toast.error("El Segundo Nombre no puede tener más de 20 caracteres", {
+        style: toastStyle,
+      });
+      isValid = false;
+      return;
     }
     if (!data.user_last_name) {
       toast.error("Por favor ingresa tu Apellido", {
@@ -59,17 +73,38 @@ function UpdateUser({ toggleUpdate }) {
       });
       isValid = false;
     }
+    if(data.user_last_name.length>20){
+      toast.error("El Apellido no puede tener más de 20 caracteres", {
+        style: toastStyle,
+      });
+      isValid = false;
+      return;
+    }
     if (!data.user_last_second_name) {
       toast.error("Por favor ingresa tu Segundo Apellido", {
         style: toastStyle,
       });
       isValid = false;
     }
+    if(data.user_last_second_name.length>20){
+      toast.error("El Segundo Apellido no puede tener más de 20 caracteres", {
+        style: toastStyle,
+      });
+      isValid = false;
+      return;
+    }
     if (!data.user_username) {
       toast.error("Por favor ingresa tu Username", {
         style: toastStyle,
       });
       isValid = false;
+    }
+    if(data.user_username.length<8){
+      toast.error("El nombre de Usuario debe ser mayor de 8 caracteres", {
+        style: toastStyle,
+      });
+      isValid = false;
+      return;
     }
     if (data.user_username) {
       const usernameRegex = /^[A-Z][a-z]{6}[0-9]$/;
@@ -96,12 +131,19 @@ function UpdateUser({ toggleUpdate }) {
     if (isValid) {
       setButton(false);
       const res = await updateUser(data);
+      if(res.error){
+        toast.error(res.error, {
+          style: toastStyle,
+        });
+        setButton(true);
+        return;
+      }
       setTimeout(() => {
         toggleUpdate(false);
+        toast.success(res, {
+          style: toastStyle,
+        });
       }, 2000);
-      toast.success(res, {
-        style: toastStyle,
-      });
     }
   });
 

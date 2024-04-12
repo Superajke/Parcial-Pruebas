@@ -39,13 +39,13 @@ function LogIn() {
 
   const onSubmit = handleSubmit(async (data) => {
     let key = true;
-    if (!data.email) {
-      toast.error("Ingresa un correo válido", {
+    if (!data.user_username) {
+      toast.error("Ingresa un Usuario válido", {
         style: toastStyle,
       });
       key = false;
     }
-    if (!data.password) {
+    if (!data.user_password) {
       toast.error("Ingresa tu contraseña", {
         style: toastStyle,
       });
@@ -53,8 +53,8 @@ function LogIn() {
     }
     if (key) {
       const res = await logIn(data);
-      if (typeof res !== "object") {
-        toast.error(res, {
+      if (res.error) {
+        toast.error(res.error, {
           style: toastStyle,
         });
       }
@@ -74,10 +74,10 @@ function LogIn() {
               </section>
 
               <p>Correo Eléctronico</p>
-              <input type="text" {...register("email")} />
+              <input type="text" {...register("user_username")} />
 
               <p>Contraseña</p>
-              <input type="password" {...register("password")} />
+              <input type="password" {...register("user_password")} />
               <button type="submit" className="submit_button">
                 Iniciar Sesión
               </button>
