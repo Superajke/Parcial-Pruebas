@@ -103,8 +103,10 @@ export const AuthProvider = ({ children }) => {
 
   const deleteUser = async (userId) => {
     try {
-      await deleteUserRequest(userId);
+      const res = await deleteUserRequest(userId);
       getUsers();
+      console.log(res.data.message)
+      return res.data.message;
     } catch (error) {
       console.log(error);
       return error.response.data;

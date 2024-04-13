@@ -127,23 +127,25 @@ export const updateUser = async (req, res) => {
 };
 
 export const deleteUser = async (req, res) => {
-  const { user_email, active } = req.body;
+  const { id } = req.params;
 
   try {
     const [result] = await pool.query(
-      "SELECT * FROM users WHERE user_email = ?",
-      [user_email]
+      "SELECT * FROM users WHERE user_id = ?",
+      [id]
     );
     if (result.length === 0) {
       return res.status(400).json({ error: "Usuario no encontrado" });
     }
 
-    await pool.query("UPDATE users SET active = ? WHERE user_email = ? ", [
-      active,
-      user_email,
+    const response = result[0].active === 1 ? "Usuario Eliminado" : "Usuario Restaurado";
+
+    await pool.query("UPDATE users SET active = ? WHERE user_id = ? ", [
+      result[0].active === 1 ? 0 : 1,
+      id,
     ]);
 
-    res.json({ message: "Usuario eliminado" });
+    res.json({ message: response });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }

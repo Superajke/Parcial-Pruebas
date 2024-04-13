@@ -14,7 +14,7 @@ const router = Router();
 router.get("/", getUsers);
 router.post("/", postUser);
 router.put("/", updateUser);
-router.delete("/", deleteUser);
+router.delete("/:id", deleteUser);
 router.post("/login", LogIn);
 router.post("/logout", logOut);
 router.get("/verifytoken", verifyToken);

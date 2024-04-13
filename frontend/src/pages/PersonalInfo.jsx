@@ -5,7 +5,7 @@ import UpdateUser from "../components/UptadeUser";
 import { toast, Toaster } from "react-hot-toast";
 
 function PersonalInfo() {
-  const { user } = useAuth();
+  const { user, deleteUser } = useAuth();
   const [update, setUpdate] = useState(false);
   const {
     user_name,
@@ -18,6 +18,26 @@ function PersonalInfo() {
     user_identification,
     user_birth_date,
   } = user;
+
+  const toastStyle = {
+    borderRadius: "10px",
+    background: "var(--background-color-dark)",
+    color: "var(--primary-color)",
+    transform: "scale(-1, 1)",
+  };
+
+  const handleDelete = async (id) => {
+    const response = await deleteUser(id);
+    if (response === "Usuario Eliminado" || response === "Usuario Restaurado") {
+      toast.success(response, {
+        style: toastStyle,
+      });
+    } else {
+      toast.error(response.error, {
+        style: toastStyle,
+      });
+    }
+  };
 
   const toggleUpdate = () => {
     setUpdate(!update);
@@ -54,9 +74,21 @@ function PersonalInfo() {
           <InfoSection label="Fecha de nacimiento" value={formatedDate} />
         </div>
       </section>
-      <button className="submit_button" onClick={toggleUpdate}>
-        Actualizar Información
-      </button>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "2rem",
+        }}
+      >
+        <button className="submit_button" onClick={toggleUpdate}>
+          Actualizar Información
+        </button>
+        <button className="submit_button" onClick={() => handleDelete(user.id)}>
+          Borrar Cuenta
+        </button>
+      </div>
       {update && <UpdateUser toggleUpdate={toggleUpdate} />}
     </section>
   );
